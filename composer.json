@@ -1,0 +1,38 @@
+{
+    "name": "hellopay/php-sdk",
+    "description": "helloPay SDK for PHP",
+    "keywords": ["helloPay", "sdk"],
+    "type": "library",
+    "homepage": "https://github.com/hellopay/hellopay-php-sdk",
+    "license": "helloPay Platform",
+    "authors": [
+        {
+            "name": "helloPay",
+            "homepage": "https://github.com/hellopay/hellopay-php-sdk/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "mockery/mockery": "~0.8"
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-4": {
+            "HelloPay\\": "src/HelloPay/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "HelloPay\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+        }
+    }
+}
