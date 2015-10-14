@@ -91,7 +91,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
             new HelloPayResponse([
                'success' => true,
                 'checkoutUrl' => 'https://hellopay.com/checkout?purchaseId=7981274913',
-                'purchaseId' => 7981274913
+                'purchaseId' => '7981274913'
             ])
         );
 

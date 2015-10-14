@@ -33,11 +33,11 @@ class PurchaseCreate extends Base
 {
     public function getCheckoutUrl()
     {
-        return $this['checkoutUrl'];
+        return isset($this['checkoutUrl']) ? $this['checkoutUrl'] : null;
     }
 
     public function getPurchaseId()
     {
-        return $this['purchaseId'];
+        return isset($this['purchaseId']) ? $this['purchaseId'] : null;
     }
 }
