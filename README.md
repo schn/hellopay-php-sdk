@@ -3,7 +3,7 @@ helloPay SDK For PHP
 [![Build Status](https://travis-ci.org/hellopay/hellopay-php-sdk.svg)](https://travis-ci.org/hellopay/hellopay-php-sdk)
 [![Latest Stable Version](http://img.shields.io/badge/Latest%20Stable-master-blue.svg)](https://packagist.org/packages/hellopay/php-sdk)
 
-helloPay is a secure payment platform, created by a team that has brought together their extensive knowledge and experience in global payment systems to make sending and receiving money easier, both for personal and commercial use. It is legally established as HELLOPAY SINGAPORE PTE. LTD, 12 Prince Edward Road #06-08, Bestway Building, Singapore 079212.
+helloPay is a secure payment platform, created by a team that has brought together their extensive knowledge and experience in global payment systems to make sending and receiving money easier, both for personal and commercial use. It is legally established as HELLOPAY SINGAPORE PTE. LTD, 8 Shenton Way #43-01 AXA Tower, Singapore 068811.
 
 When you register with us, you just need your mobile number and email address to get started. Our network will then enable you to safely make online purchases without revealing your payment details. All your data and transactions are kept 100% secure by our experienced anti-fraud team, and our security measures adhere to the highest safety and security standards.
 
