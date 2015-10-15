@@ -21,48 +21,33 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-
-namespace HelloPay\Responses;
+namespace HelloPay\Helpers;
 
 /**
- * Class NotificationData
+ * Class NotificationParser
  *
  * @package HelloPay
  */
-class NotificationData extends Base
+class NotificationParser
 {
-    public function getId()
-    {
-        return $this['id'];
-    }
-
-    public function getCreationDateTime()
-    {
-        return $this['creationDateTime'];
-    }
-
     /**
-     * Get purchase Id
-     *
-     * @return mixed
+     * @param $payload
+     * @return bool|mixed
      */
-    public function getTransactionId()
+    public static function parsePayload($payload)
     {
-        return $this['transactionId'];
-    }
+        $postRawKey = "transactionEvents=";
+        $transactionEventsRaw = strstr($payload, $postRawKey);
 
-    public function getNewStatus()
-    {
-        return $this['newStatus'];
-    }
+        if (!$transactionEventsRaw) {
+            return false;
+        }
 
-    public function getOldStatus()
-    {
-        return $this['oldStatus'];
-    }
+        $transactionEventsRaw = str_replace($postRawKey, '', $transactionEventsRaw);
+        $transactionEventsRaw = urldecode($transactionEventsRaw);
 
-    public function getMerchantReferenceId()
-    {
-        return $this['merchantReferenceId'];
+        $decodedData = json_decode($transactionEventsRaw, true);
+
+        return $decodedData;
     }
 }
