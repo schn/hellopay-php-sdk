@@ -35,4 +35,14 @@ class Base extends \ArrayObject
     {
         parent::__construct($array, static::ARRAY_AS_PROPS);
     }
+
+    public function __get($key)
+    {
+        $getterName = 'get' . ucfirst($key);
+        if (method_exists($this, $getterName)) {
+            return $this->$getterName();
+        }
+
+        return $this[$key];
+    }
 }

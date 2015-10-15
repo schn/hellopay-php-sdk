@@ -25,6 +25,7 @@
 namespace HelloPay;
 
 use HelloPay\Exceptions\HelloPaySDKException;
+use HelloPay\Helpers\NotificationParser;
 use HelloPay\HttpClients\HelloPayCurlHttpClient;
 use HelloPay\RequestParams\CancelTransaction;
 use HelloPay\RequestParams\PurchaseCreate as PurchaseCreateRequestParams;
@@ -237,18 +238,7 @@ class HelloPay
      */
     public function parseNotificationPayload($payload)
     {
-        $postRawKey = "transactionEvents=";
-        $transactionEventsRaw = strstr($payload, $postRawKey);
-
-        if (!$transactionEventsRaw) {
-            $this->lastMessage = "No content in POST";
-            return false;
-        }
-
-        $transactionEventsRaw = str_replace($postRawKey, '' ,$transactionEventsRaw);
-        $transactionEventsRaw = urldecode($transactionEventsRaw);
-
-        $decodedData = json_decode($transactionEventsRaw, true);
+        $decodedData = NotificationParser::parsePayload($payload);
 
         if (!$decodedData) {
             $this->lastMessage = 'Wrong format type';

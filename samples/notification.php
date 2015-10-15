@@ -13,6 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = $helloPay->parseNotificationPayload($postData);
 
     var_dump($response->getNewStatus());
-    var_dump($response->getPurchaseId());
+    var_dump($response->getTransactionId());
     var_dump($response->getMerchantReferenceId());
 }

@@ -57,7 +57,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructionMissingShopConfig()
     {
-        new HelloPay([]);
+        new HelloPay();
     }
 
     /**
@@ -69,7 +69,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
     public function testConstructionMissingApiUrl()
     {
         new HelloPay([
-            'shopConfig' => 'AAEAAADoKU7YItWSEhYpJRb0fV842USafymz4Vs2onKOPsMPlnU9LFrt/AAEAAAgfi0NagriqYanhi9n07WBzO97L9uLWSRpFW5Yk_yhzXuhddRfA/413974t5da819d4495d7c45ce3ef036a'
+            'shopConfig' => 'AAEAAADoKU7YItWSEhYpJRb0fV842USafymz4Vs2onKOPsMPlnU9LFrt'
         ]);
     }
 
@@ -81,40 +81,75 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
     public function testCreatePurchaseMissingParam()
     {
         $helloPay = new HelloPayProxy();
-        $helloPay->createPurchase([]);
+        $helloPay->createPurchase();
     }
 
-    public function testCreatePurchaseSuccess()
+    /**
+     * @param array $data
+     * @dataProvider createPurchaseDataProvider
+     */
+    public function testCreatePurchase($data)
     {
         $helloPay = new HelloPayProxy();
         $helloPay->getHttpClient()->shouldReceive('send')->once()->andReturn(
-            new HelloPayResponse([
-               'success' => true,
-                'checkoutUrl' => 'https://hellopay.com/checkout?purchaseId=7981274913',
-                'purchaseId' => '7981274913'
-            ])
+            new HelloPayResponse($data)
         );
 
         $response = $helloPay->createPurchase($this->getPurchaseData());
 
-        $this->assertEquals('7981274913', $response->getPurchaseId());
-        $this->assertEquals('https://hellopay.com/checkout?purchaseId=7981274913', $response->getCheckoutUrl());
+        if ($response) {
+            $this->assertEquals($data['purchaseId'], $response->getPurchaseId());
+            $this->assertEquals($data['checkoutUrl'], $response->getCheckoutUrl());
+        } else {
+            $this->assertEquals($data['message'], $helloPay->getLastMessage());
+        }
     }
 
-    public function testCreatePurchaseFailed()
+    /**
+     * @dataProvider getNotificationPayloadDataProvider
+     */
+    public function testParseNotificationPayload($data)
     {
+        $payload = 'transactionEvents=[' . json_encode($data) . ']';
+
         $helloPay = new HelloPayProxy();
-        $helloPay->getHttpClient()->shouldReceive('send')->once()->andReturn(
-            new HelloPayResponse([
-                'success' => false,
-                'message' => 'There were errors'
-            ])
-        );
+        $response = $helloPay->parseNotificationPayload($payload);
 
-        $response = $helloPay->createPurchase($this->getPurchaseData());
+        foreach ($data as $key => $value) {
+            $this->assertEquals($value, $response->$key);
+        }
+    }
 
-        $this->assertFalse($response);
-        $this->assertEquals('There were errors', $helloPay->getLastMessage());
+    public function createPurchaseDataProvider()
+    {
+        return [
+            'Success' => [
+                'data' => [
+                    'success' => true,
+                    'checkoutUrl' => 'https://hellopay.com/checkout?purchaseId=7981274913',
+                    'purchaseId' => '7981274913'
+                ]
+            ],
+            'Failed' => [
+                'data' => [
+                    'success' => false,
+                    'message' => 'There were errors'
+                ]
+            ]
+        ];
+    }
+
+    public function getNotificationPayloadDataProvider()
+    {
+        return [[[
+            'id' => 'AAEAAAA6hpLVM_BcBJ82aTsXbUDlYkAgGmi-ivYB8p6e7hCdQFWsWAAm',
+            'creationDateTime' => '2014-03-26T09:57:25 0000',
+            'transactionType' => 'Purchase',
+            'newStatus' => 'Expired',
+            'oldStatus' => 'Created',
+            'transactionId' => 'AAEAAADoKU7ce-QyvoRbYZpDBenwSWGDuBW2h0A7q-kv5LjfYTA_5CzV',
+            'merchantReferenceId' => '508365572'
+        ]]];
     }
 
     protected function getPurchaseData()
@@ -154,9 +189,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
         $data['shippingAddress']['district'] = "Kepulauan Seribu Utara";
         $data['shippingAddress']['zip'] = "247964";
 
-
         $data['billingAddress'] = $data['shippingAddress'];
-
 
         $data['consumerData']['mobilePhoneNumber'] = "6563584754";
         $data['consumerData']['emailAddress'] = "test@test.com";
