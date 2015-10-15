@@ -89,8 +89,7 @@ class TransactionEvents extends Base
      */
     protected function checkStatus($status)
     {
-        foreach ($this as $item)
-        {
+        foreach ($this as $item) {
             if ($item['newStatus'] == $status) {
                 $this->currentItem = $item;
                 return true;
