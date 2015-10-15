@@ -41,7 +41,7 @@ abstract class Base
             $this->data[$key] = null;
         }
 
-        if ($data) {
+        if (is_array($data)) {
             $this->setData($data);
         }
     }
