@@ -42,12 +42,12 @@ class HelloPayResponse extends \ArrayObject
 
     public function isSuccess()
     {
-        return (bool) $this[static::KEY_SUCCESS] == true;
+        return (bool) $this[static::KEY_SUCCESS] === true;
     }
 
     public function isError()
     {
-        return (bool) $this[static::KEY_SUCCESS] == false;
+        return (bool) $this[static::KEY_SUCCESS] === false;
     }
 
     public function getMessage()

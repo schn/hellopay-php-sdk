@@ -23,6 +23,7 @@
  */
 
 namespace HelloPay\RequestParams;
+
 use HelloPay\Exceptions\HelloPayRequestParamException;
 
 /**
@@ -230,7 +231,7 @@ class PurchaseCreate extends Base
 
     protected function setBasketItems($basketItems)
     {
-        if(!is_array($basketItems)) {
+        if (!is_array($basketItems)) {
             throw new HelloPayRequestParamException('Value for basketItems has a wrong format!');
         }
 
@@ -239,15 +240,14 @@ class PurchaseCreate extends Base
 
         $basketItemsNew = array();
         foreach ($basketItemsAttributes as $basketItemKey) {
-
-            if(isset($basketItems[$basketItemKey])
+            if (isset($basketItems[$basketItemKey])
                 && empty($basketItems[$basketItemKey])
                 && in_array($basketItemKey, $basketItemsMandatory)
             ) {
                 throw new HelloPayRequestParamException(
                     'Value for the basket basketItems key: ' . $basketItemKey . ' must not be empty!'
                 );
-            } elseif(isset($basketItems[$basketItemKey])) {
+            } elseif (isset($basketItems[$basketItemKey])) {
                 $basketItemsNew[$basketItemKey] = $basketItems[$basketItemKey];
             }
         }
@@ -255,9 +255,9 @@ class PurchaseCreate extends Base
         return $basketItemsNew;
     }
 
-    protected function _setNestedValue($nestedKey, $value)
+    protected function setNestedValue($nestedKey, $value)
     {
-        if(!is_array($value)) {
+        if (!is_array($value)) {
             throw new HelloPayRequestParamException("Value for $nestedKey has a wrong format!");
         }
         $getClassName = 'get' . ucfirst($nestedKey) . 'AttributeKeys';
@@ -268,7 +268,7 @@ class PurchaseCreate extends Base
 
         $valueNew = array();
         foreach ($attributes as $itemKey) {
-            if(isset($value[$itemKey]) && empty($value[$itemKey])
+            if (isset($value[$itemKey]) && empty($value[$itemKey])
                 && in_array($itemKey, $attributesMandatory)
             ) {
                 throw new HelloPayRequestParamException(
@@ -286,15 +286,15 @@ class PurchaseCreate extends Base
 
     protected function setShippingAddress($value)
     {
-        $this->_setNestedValue('shippingAddress', $value);
+        $this->setNestedValue('shippingAddress', $value);
     }
 
     protected function setBillingAddress($value)
     {
-        $this->_setNestedValue('billingAddress', $value);
+        $this->setNestedValue('billingAddress', $value);
     }
     protected function setConsumerData($value)
     {
-        $this->_setNestedValue('consumerData', $value);
+        $this->setNestedValue('consumerData', $value);
     }
 }
