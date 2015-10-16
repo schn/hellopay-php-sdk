@@ -24,7 +24,7 @@ The helloPay PHP SDK can be installed with [Composer](https://getcomposer.org/).
 ## Usage
 > **Note:** This version of the helloPay SDK for PHP requires PHP 5.4 or greater.
 
-Cancel a transaction example
+#### Cancel a transaction example
 
 ```php
 $helloPay = new \HelloPay\HelloPay([
@@ -52,6 +52,25 @@ if ($response) {
     echo $helloPay->getLastMessage();
 }
 
+```
+
+#### How to use the SDK without composer
+1. Download helloPay SDK package from here:
+https://github.com/hellopay/hellopay-php-sdk/archive/master.zip
+2. Extract the zip file
+3. Copy src folder to the root directory of your application
+4. Use the below code to include the helloPay SDK into your code
+
+```php
+<?php
+
+require_once __DIR__ . '/src/HelloPay/autoload.php';
+
+$helloPay = new \HelloPay\HelloPay([
+    'shopConfig' => 'AAEAAADoKU7YCxb_Z9IU2RcBgnEg26xJsHuZCDK7cMK7vnm_vnTzGjLJ/AAEAAAgfi0MlUJfWeGEwG4ujB2VrcfJlF_L0PPqrhIjAnG4R6qiaKAar/a5c4123e5a1f196d896d908cf64764e1',
+    'apiUrl' => 'https://sandbox.hellopay.com.sg',
+    'sslEnabled' => true
+]);
 ```
 
 ## Tests
