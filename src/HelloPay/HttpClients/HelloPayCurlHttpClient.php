@@ -141,9 +141,12 @@ class HelloPayCurlHttpClient
             CURLOPT_TIMEOUT => $timeOut,
             CURLOPT_RETURNTRANSFER => true, // Follow 301 redirects
             CURLOPT_HEADER => true, // Enable header processing
-            CURLOPT_SSL_VERIFYHOST => $this->sslEnabled,
-            CURLOPT_SSL_VERIFYPEER => $this->sslEnabled
         ];
+
+        if ($this->sslEnabled) {
+            $options[CURLOPT_SSL_VERIFYHOST] = 2;
+            $options[CURLOPT_SSL_VERIFYPEER] = true;
+        }
 
         if ($method !== "GET") {
             $options[CURLOPT_POSTFIELDS] = $body;
