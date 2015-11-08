@@ -45,6 +45,7 @@ class PurchaseCreate extends Base
             'purchaseFailureUrl',
             'purchaseCancelUrl',
             'purchaseReturnUrl',
+            'purchaseCallbackUrl',
             'basket',
             'shippingAddress',
             'billingAddress',
