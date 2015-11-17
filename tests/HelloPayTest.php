@@ -52,8 +52,8 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
     /**
      * Test constructor error without passed shopConfig param
      *
-     * @expectedException \HelloPay\Exceptions\HelloPaySDKException
-     * @expectedExceptionMessage Required "shopConfig" key not supplied in config and could not find fallback environment variable "HELLOPAY_SHOP_CONFIG"
+     * @expectedException \HelloPay\HelloPaySDKException
+     * @expectedExceptionMessage Required "shopConfig" key not supplied in Config and could not find fallback environment variable "HELLOPAY_SHOP_CONFIG"
      */
     public function testConstructionMissingShopConfig()
     {
@@ -63,8 +63,8 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
     /**
      * Test constructor error without passed apiUrl param
      *
-     * @expectedException \HelloPay\Exceptions\HelloPaySDKException
-     * @expectedExceptionMessage Required "apiUrl" key not supplied in config and could not find fallback environment variable "HELLOPAY_API_URL"
+     * @expectedException \HelloPay\HelloPaySDKException
+     * @expectedExceptionMessage Required "apiUrl" key not supplied in Config and could not find fallback environment variable "HELLOPAY_API_URL"
      */
     public function testConstructionMissingApiUrl()
     {
@@ -75,7 +75,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
 
     /**
      *
-     * @expectedException \HelloPay\Exceptions\HelloPayRequestParamException
+     * @expectedException \HelloPay\HelloPayRequestParamException
      * @expectedExceptionMessage Value for the key priceAmount must not be empty!
      */
     public function testCreatePurchaseMissingParam()
@@ -113,7 +113,7 @@ class HelloPayTest extends \PHPUnit_Framework_TestCase
         $payload = 'transactionEvents=[' . json_encode($data) . ']';
 
         $helloPay = new HelloPayProxy();
-        $response = $helloPay->parseNotificationPayload($payload);
+        $response = $helloPay->getNotification($payload);
 
         foreach ($data as $key => $value) {
             $this->assertEquals($value, $response->$key);

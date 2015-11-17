@@ -24,241 +24,132 @@
 
 namespace HelloPay;
 
-use HelloPay\Exceptions\HelloPaySDKException;
-use HelloPay\Helpers\NotificationParser;
+use HelloPay\CancelTransaction\CancelTransactionManager;
+use HelloPay\Config\HelloPayClientConfigInterface;
+use HelloPay\Config\HelloPayConfigManager;
 use HelloPay\HttpClients\HelloPayCurlHttpClient;
-use HelloPay\RequestParams\CancelTransaction;
-use HelloPay\RequestParams\PurchaseCreate as PurchaseCreateRequestParams;
-use HelloPay\Responses\NotificationData;
-use HelloPay\Responses\PurchaseCreate as PurchaseCreateResponse;
-use HelloPay\Responses\TransactionEvents as TransactionEventsResponse;
-use HelloPay\RequestParams\TransactionEvents as TransactionEventsRequestParams;
-use HelloPay\RequestParams\RefundAmount as RefundAmountRequestParams;
+use HelloPay\Notification\NotificationFactory;
 
 /**
  * Class HelloPay
+ *
+ * todo: all classes constructor properties should be injected by DI Container
+ * todo: ( for example we could use https://github.com/PHP-DI/PHP-DI )
  *
  * @package HelloPay
  */
 class HelloPay
 {
     /**
+     * todo: should be removed
+     * todo: are we really need this param in code? i suppose such things should be solved by git tags
      * @const string Version number of the helloPay PHP SDK.
      */
     const VERSION = '1.0.0';
 
     /**
+     * todo: should be removed
+     * todo: i think its not a good idea to delegate such config param to environment variables
+     * todo: lets use HelloPayConfigInterface instead
      * @const string The name of the environment variable that contains the shopConfig.
      */
     const HELLOPAY_SHOP_CONFIG = 'HELLOPAY_SHOP_CONFIG';
 
     /**
+     * todo: should be removed
+     * todo: i think its not a good idea to delegate such config param to environment variables
+     * todo: lets use HelloPayConfigInterface instead
      * @const string the name of the environment variable that contains the apiUrl
      */
     const HELLOPAY_API_URL = 'HELLOPAY_API_URL';
 
     /**
-     * @const string the name of api endpoint of purchase create
+     * todo: should be removed
+     * todo: May be write logs instead?
      */
-    const API_ENDPOINT_PURCHASE_CREATE = 'purchaseCreate';
-
-    /**
-     * @const string the name of api endpoint of getting transaction events
-     */
-    const API_ENDPOINT_TRANSACTION_EVENTS = 'transactionEvents';
-
-    /**
-     * @const string the name of api endpoint of cancelling transaction
-     */
-    const API_ENDPOINT_CANCEL = 'cancel';
-
-    /**
-     * @const string the name of api endpoint of refunding amount
-     */
-    const API_ENDPOINT_REFUND = 'refund';
-
-    /**
-     * @var string The registered shop configuration id
-     */
-    protected $shopConfig;
-
-    /**
-     * @var string The api url of helloPay system
-     */
-    protected $apiUrl;
-
-    /**
-     * @var HelloPayCurlHttpClient
-     */
-    protected $httpClient;
-
     protected $lastMessage = '';
 
     /**
-     * @var array api endpoints mapping
+     * @var HelloPayConfigManager
      */
-    private $apiEndPoints = [
-        self::API_ENDPOINT_PURCHASE_CREATE    => '/merchant/create',
-        self::API_ENDPOINT_TRANSACTION_EVENTS => '/merchant/transaction-events',
-        self::API_ENDPOINT_CANCEL             => '/merchant/cancel',
-        self::API_ENDPOINT_REFUND             => '/merchant/refund'
-    ];
+    private $helloPayConfigManager;
+
+    /**
+     * @var NotificationFactory
+     */
+    private $notificationFactory;
+
+    /**
+     * @var CancelTransactionManager
+     */
+    private $cancelTransactionManager;
 
     /**
      * Instantiates a new helloPay main object
      *
-     * @param array $config
+     * @param HelloPayClientConfigInterface $helloPayConfig
      *
      * @throws HelloPaySDKException
      */
-    public function __construct(array $config = [])
+    public function __construct(HelloPayClientConfigInterface $helloPayConfig)
     {
-        $this->shopConfig = isset($config['shopConfig']) ? $config['shopConfig'] : getenv(static::HELLOPAY_SHOP_CONFIG);
-        if (!$this->shopConfig) {
-            throw new HelloPaySDKException('Required "shopConfig" key not supplied in config'
-                . ' and could not find fallback environment variable "'
-                . static::HELLOPAY_SHOP_CONFIG . '"');
-        }
+        $this->helloPayConfigManager = new HelloPayConfigManager($helloPayConfig);
 
-        $this->apiUrl = isset($config['apiUrl']) ? $config['apiUrl'] : getenv(static::HELLOPAY_API_URL);
-        if (!$this->apiUrl) {
-            throw new HelloPaySDKException('Required "apiUrl" key not supplied in config'
-                . ' and could not find fallback environment variable "'
-                . static::HELLOPAY_API_URL . '"');
-        }
-
-        $this->httpClient = new HelloPayCurlHttpClient(isset($config['sslEnabled']) ? $config['sslEnabled'] : true);
+        $this->notificationFactory = new NotificationFactory();
+        $this->cancelTransactionManager = new CancelTransactionManager($this->helloPayConfigManager);
     }
 
     /**
-     * Get the last message from helloPay
+     * todo: in this submodule we would have more large abstractions on the input data. we need to make several objects
+     * todo: such as CreatePurchaseBasketRequestParams, CreatePurchaseBasketMainRequestParams etc
+     * todo: that would be part (composition relations) of CreatePurchaseRequestParams object
+     * todo: another part of submodule would stay the same as in cancelTransaction submodule example
      *
-     * @return string
-     */
-    public function getLastMessage()
-    {
-        return $this->lastMessage;
-    }
-
-    /**
      * @param array $purchaseData
-     * @return bool|PurchaseCreateResponse
-     * @throws HelloPaySDKException
+     * @return HelloPayResponse
      */
     public function createPurchase(array $purchaseData = [])
     {
-        $requestParams = new PurchaseCreateRequestParams($purchaseData);
-        $requestParams->setValue('shopConfig', $this->shopConfig);
-
-        $response = $this->httpClient->send(
-            $this->getApiEndPointUrl(static::API_ENDPOINT_PURCHASE_CREATE),
-            'POST',
-            $requestParams->getData()
-        );
-
-        if ($response->isSuccess()) {
-            return new PurchaseCreateResponse(get_object_vars($response));
-        }
-
-        $this->lastMessage = $response->getMessage();
-        return false;
+        // todo: return $this->helloPayCreatePurchaseManager->createPurchase($purchaseData);
     }
 
     /**
+     * todo: here we do same as in CancelTransaction: make submodule with all entities
+     *
      * @param array $requestParams
-     * @return bool|TransactionEventsResponse
-     * @throws HelloPaySDKException
+     * @return HelloPayResponse
      */
     public function getTransactionEvents(array $requestParams = [])
     {
-        $requestParams = new TransactionEventsRequestParams($requestParams);
-        $requestParams->setValue('shopConfig', $this->shopConfig);
-
-        $response = $this->httpClient->send(
-            $this->getApiEndPointUrl(static::API_ENDPOINT_TRANSACTION_EVENTS),
-            'POST',
-            $requestParams->getData()
-        );
-
-        if ($response->isSuccess()) {
-            return new TransactionEventsResponse($response->transactionEvents);
-        }
-
-        $this->lastMessage = $response->getMessage();
-        return false;
+        //todo: return $this->transactionEventsManager->getTransactionEvents($requestParams);
     }
 
     /**
-     * @param $transactionId
-     * @return bool
-     * @throws HelloPaySDKException
+     * @param string $transactionId
+     * @return HelloPayResponse
      */
     public function cancelTransaction($transactionId)
     {
-        $requestParams = new CancelTransaction([
-            'purchaseId' => $transactionId,
-            'shopConfig' => $this->shopConfig
-        ]);
-
-        $response = $this->httpClient->send(
-            $this->getApiEndPointUrl(static::API_ENDPOINT_CANCEL),
-            'POST',
-            $requestParams->getData()
-        );
-
-        $this->lastMessage = $response->getMessage();
-
-        return $response->isSuccess();
+        return $this->cancelTransactionManager->cancelTransaction($transactionId);
     }
 
     /**
+     * todo: here we do same as in CancelTransaction: make submodule RefundAmount with all entities
+     *
      * @param array $requestParams
-     * @return bool
-     * @throws HelloPaySDKException
+     * @return HelloPayResponse
      */
     public function refundAmount(array $requestParams)
     {
-        $requestParams = new RefundAmountRequestParams($requestParams);
-        $requestParams->setValue('shopConfig', $this->shopConfig);
-
-        $response = $this->httpClient->send(
-            $this->getApiEndPointUrl(static::API_ENDPOINT_REFUND),
-            'POST',
-            $requestParams->getData()
-        );
-
-        $this->lastMessage = $response->getMessage();
-
-        return $response->isSuccess();
+        //todo: return $this->refundAmountManager->refundAmount($requestParams);
     }
 
     /**
-     * @param $payload
-     * @return bool|NotificationData
+     * @param string $payload
+     * @return HelloPayResponse
      */
-    public function parseNotificationPayload($payload)
+    public function getNotification($payload)
     {
-        $decodedData = NotificationParser::parsePayload($payload);
-
-        if (!$decodedData) {
-            $this->lastMessage = 'Wrong format type';
-            return false;
-        }
-
-        return new NotificationData($decodedData[0]);
-    }
-
-    /**
-     * @param string $name the given api endpoint name
-     * @return string
-     * @throws HelloPaySDKException
-     */
-    protected function getApiEndPointUrl($name)
-    {
-        if (!isset($this->apiEndPoints[$name])) {
-            throw new HelloPaySDKException('The Api Endpoint URL of ' . $name . ' does not exist.');
-        }
-
-        return $this->apiUrl . $this->apiEndPoints[$name];
+        return $this->notificationFactory->createFromPayload($payload);
     }
 }

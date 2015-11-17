@@ -21,33 +21,13 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-namespace HelloPay\Helpers;
+namespace HelloPay;
 
 /**
- * Class NotificationParser
+ * Class HelloPaySDKException
  *
  * @package HelloPay
  */
-class NotificationParser
+class HelloPaySDKException extends \Exception
 {
-    /**
-     * @param $payload
-     * @return bool|mixed
-     */
-    public static function parsePayload($payload)
-    {
-        $postRawKey = "transactionEvents=";
-        $transactionEventsRaw = strstr($payload, $postRawKey);
-
-        if (!$transactionEventsRaw) {
-            return false;
-        }
-
-        $transactionEventsRaw = str_replace($postRawKey, '', $transactionEventsRaw);
-        $transactionEventsRaw = urldecode($transactionEventsRaw);
-
-        $decodedData = json_decode($transactionEventsRaw, true);
-
-        return $decodedData;
-    }
 }

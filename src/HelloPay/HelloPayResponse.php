@@ -29,29 +29,48 @@ namespace HelloPay;
  *
  * @package HelloPay
  */
-class HelloPayResponse extends \ArrayObject
+abstract class HelloPayResponse
 {
-    const KEY_SUCCESS = 'success';
+    /**
+     * @var string
+     */
+    protected $success;
 
-    const KEY_MESSAGE = 'message';
+    /**
+     * @var string
+     */
+    protected $message;
 
-    public function __construct($array)
+    /**
+     * @return bool
+     */
+    public function getSuccess()
     {
-        parent::__construct($array, static::ARRAY_AS_PROPS);
+        return (bool) $this->success;
     }
 
-    public function isSuccess()
+    /**
+     * @param string $success
+     */
+    public function setSuccess($success)
     {
-        return (bool) $this[static::KEY_SUCCESS] === true;
+        $this->success = $success;
     }
 
-    public function isError()
-    {
-        return (bool) $this[static::KEY_SUCCESS] === false;
-    }
-
+    /**
+     * @return string
+     */
     public function getMessage()
     {
-        return isset($this[static::KEY_MESSAGE]) ? $this[static::KEY_MESSAGE] : '';
+        return $this->message;
+    }
+
+
+    /**
+     * @param string $message
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
     }
 }
